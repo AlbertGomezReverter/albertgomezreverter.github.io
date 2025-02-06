@@ -3,10 +3,7 @@ name: Feature request
 about: Suggest an idea for this project
 title: ''
 labels: Features
-assignees: ''
-service: 'Modelo Gobierno'
-priority: 'P0'
-status: 'Backlog'
+assignees: AlbertGomezReverter
 
 ---
 
