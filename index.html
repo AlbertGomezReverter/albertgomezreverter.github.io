@@ -1,351 +1,1005 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Albert Gómez Reverter | Technology Strategy & Advisory</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="Portfolio by Albert Gómez Reverter">
-  <meta name="author" content="Alber Gomez Reverter">
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: #ffffff;
+            color: #1d1d1f;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            cursor: none;
+        }
 
-  <title>Albert Gómez Reverter</title>
+        /* CUSTOM CURSOR */
+        #cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #0071e3;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.1s ease;
+            mix-blend-mode: difference;
+        }
 
-  <!-- Bootstrap core CSS -->
-  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+        #cursor-trail {
+            width: 8px;
+            height: 8px;
+            background: #0071e3;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transition: all 0.15s ease;
+            opacity: 0.5;
+        }
 
-  <!-- Custom fonts for this template -->
-  <link href="https://fonts.googleapis.com/css?family=Saira+Extra+Condensed:100,200,300,400,500,600,700,800,900"
-    rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i"
-    rel="stylesheet">
-  <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet">
-  <link href="vendor/devicons/css/devicons.min.css" rel="stylesheet">
-  <link href="vendor/simple-line-icons/css/simple-line-icons.css" rel="stylesheet">
+        .particle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: #0071e3;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9997;
+            animation: particleFade 1s ease-out forwards;
+        }
 
-  <!-- Custom styles for this template -->
-  <link href="css/resume.min.css" rel="stylesheet">
+        @keyframes particleFade {
+            to {
+                opacity: 0;
+                transform: translate(var(--tx), var(--ty)) scale(0);
+            }
+        }
 
+        a:hover ~ #cursor,
+        button:hover ~ #cursor,
+        .btn:hover ~ #cursor {
+            transform: scale(1.5);
+            background: rgba(0, 113, 227, 0.1);
+        }
+
+        /* TERMINAL HINT */
+        .terminal-hint {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+            font-size: 13px;
+            opacity: 0;
+            z-index: 9999;
+            animation: hintPulse 3s ease-in-out 2s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes hintPulse {
+            0%, 90%, 100% { opacity: 0; transform: translateX(-50%) translateY(0); }
+            45%, 55% { opacity: 0.9; transform: translateX(-50%) translateY(-5px); }
+        }
+
+        /* TERMINAL MODE */
+        #terminal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.97);
+            z-index: 10000;
+            padding: 40px;
+            overflow-y: auto;
+            animation: terminalFadeIn 0.3s ease;
+        }
+
+        #terminal-overlay.active {
+            display: block;
+        }
+
+        @keyframes terminalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .terminal-container {
+            max-width: 900px;
+            margin: 0 auto;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+        }
+
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #00ff00;
+        }
+
+        .terminal-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .terminal-close {
+            background: none;
+            border: 1px solid #00ff00;
+            color: #00ff00;
+            padding: 5px 15px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .terminal-close:hover {
+            background: #00ff00;
+            color: #000;
+        }
+
+        .terminal-output {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .terminal-line {
+            margin-bottom: 10px;
+            opacity: 0;
+            animation: terminalType 0.5s ease forwards;
+        }
+
+        @keyframes terminalType {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .terminal-prompt {
+            color: #0071e3;
+        }
+
+        .terminal-command {
+            color: #ffff00;
+        }
+
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        #terminal-input {
+            background: transparent;
+            border: none;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            outline: none;
+            flex: 1;
+            padding: 5px;
+        }
+
+        .cursor-blink {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background: #00ff00;
+            animation: blink 1s infinite;
+            margin-left: 5px;
+        }
+
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+
+        /* NAVIGATION */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        nav .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav .logo {
+            font-size: 21px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 40px;
+        }
+
+        nav a {
+            color: #1d1d1f;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 400;
+            transition: opacity 0.3s ease;
+        }
+
+        nav a:hover {
+            opacity: 0.6;
+        }
+
+        /* HERO SECTION */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 40px 80px;
+        }
+
+        .hero .name {
+            font-size: 32px;
+            font-weight: 500;
+            letter-spacing: -0.5px;
+            color: #0071e3;
+            margin-bottom: 24px;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+        }
+
+        .hero h1 {
+            font-size: 80px;
+            font-weight: 700;
+            letter-spacing: -2px;
+            line-height: 1.05;
+            margin-bottom: 24px;
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.2s forwards;
+        }
+
+        .hero .subtitle {
+            font-size: 28px;
+            font-weight: 400;
+            color: #6e6e73;
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.4s forwards;
+        }
+
+        .hero .cta {
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.6s forwards;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 16px 32px;
+            background: #0071e3;
+            color: white;
+            text-decoration: none;
+            border-radius: 980px;
+            font-size: 17px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #0077ED;
+            transform: scale(1.02);
+        }
+
+        /* SECTIONS */
+        section {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 120px 40px;
+        }
+
+        section h2 {
+            font-size: 56px;
+            font-weight: 700;
+            letter-spacing: -1.5px;
+            margin-bottom: 80px;
+            text-align: center;
+        }
+
+        /* EXPERTISE GRID */
+        .expertise-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 60px;
+            margin-top: 80px;
+        }
+
+        .expertise-item h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .expertise-item p {
+            font-size: 17px;
+            color: #6e6e73;
+            line-height: 1.5;
+        }
+
+        /* EXPERIENCE TIMELINE */
+        .timeline {
+            margin-top: 80px;
+        }
+
+        .timeline-item {
+            margin-bottom: 80px;
+            padding-bottom: 80px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+
+        .timeline-year {
+            font-size: 14px;
+            color: #6e6e73;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .timeline-item h3 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .timeline-company {
+            font-size: 21px;
+            color: #6e6e73;
+            margin-bottom: 24px;
+        }
+
+        .timeline-item ul {
+            list-style: none;
+            margin-top: 24px;
+        }
+
+        .timeline-item li {
+            font-size: 17px;
+            color: #1d1d1f;
+            margin-bottom: 12px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .timeline-item li:before {
+            content: "·";
+            position: absolute;
+            left: 0;
+            font-size: 24px;
+            line-height: 17px;
+        }
+
+        /* CERTIFICATIONS */
+        .cert-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 24px;
+            margin-top: 60px;
+        }
+
+        .cert-item {
+            text-align: center;
+            padding: 40px 24px;
+            background: #f5f5f7;
+            border-radius: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .cert-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        }
+
+        .cert-item img {
+            width: 64px;
+            height: 64px;
+            object-fit: contain;
+            margin-bottom: 16px;
+        }
+
+        .cert-item .cert-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .cert-item h4 {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .cert-item p {
+            font-size: 14px;
+            color: #6e6e73;
+        }
+
+        /* CONTACT */
+        .contact {
+            text-align: center;
+            padding: 140px 40px;
+            background: #f5f5f7;
+        }
+
+        .contact h2 {
+            font-size: 64px;
+            margin-bottom: 40px;
+        }
+
+        .contact-links {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+
+        .contact-links a {
+            padding: 14px 28px;
+            background: white;
+            color: #1d1d1f;
+            text-decoration: none;
+            border-radius: 980px;
+            font-size: 17px;
+            transition: all 0.3s ease;
+        }
+
+        .contact-links a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+
+        /* ANIMATIONS */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            body {
+                cursor: auto;
+            }
+
+            #cursor, #cursor-trail {
+                display: none;
+            }
+
+            .terminal-hint {
+                display: none;
+            }
+
+            .hero .name {
+                font-size: 24px;
+            }
+
+            .hero h1 {
+                font-size: 48px;
+            }
+
+            .hero .subtitle {
+                font-size: 21px;
+            }
+
+            section h2 {
+                font-size: 40px;
+            }
+
+            nav .container {
+                padding: 16px 20px;
+            }
+
+            nav ul {
+                gap: 20px;
+                font-size: 12px;
+            }
+
+            section {
+                padding: 80px 20px;
+            }
+
+            .expertise-grid {
+                gap: 40px;
+            }
+
+            .timeline-item {
+                margin-bottom: 60px;
+                padding-bottom: 60px;
+            }
+
+            .timeline-item h3 {
+                font-size: 24px;
+            }
+
+            .contact h2 {
+                font-size: 40px;
+            }
+
+            .cert-grid {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            }
+
+            #terminal-overlay {
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
+<body>
 
-<body id="page-top">
+    <!-- CUSTOM CURSOR -->
+    <div id="cursor"></div>
+    <div id="cursor-trail"></div>
 
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" id="sideNav">
-    <a class="navbar-brand js-scroll-trigger" href="#page-top">
-      <span class="d-none d-lg-block">
-        <img class="img-fluid img-profile rounded-circle mx-auto mb-2" src="img/profile.jpg" alt="">
-      </span>
-    </a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link js-scroll-trigger" href="#about">About</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link js-scroll-trigger" href="#experience">Experience</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link js-scroll-trigger" href="#education">Education</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link js-scroll-trigger" href="#skills">Skills</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link js-scroll-trigger" href="#interests">Interests</a>
-        </li>
-        <!-- <li class="nav-item">
-          <a class="nav-link js-scroll-trigger" href="#awards">Awards</a>
-        </li> -->
-      </ul>
+    <!-- TERMINAL HINT -->
+    <div class="terminal-hint">💻 Press Ctrl+Shift+T for terminal mode</div>
+
+    <!-- TERMINAL OVERLAY -->
+    <div id="terminal-overlay">
+        <div class="terminal-container">
+            <div class="terminal-header">
+                <div class="terminal-title">albert@devops:~$</div>
+                <button class="terminal-close" onclick="closeTerminal()">exit</button>
+            </div>
+            <div class="terminal-output" id="terminal-output">
+                <div class="terminal-line" style="animation-delay: 0s;">
+                    <span class="terminal-prompt">albert@devops:~$</span> whoami
+                </div>
+                <div class="terminal-line" style="animation-delay: 0.1s;">
+                    Albert Gómez Reverter | Technology Strategy & Advisory Consultant @ Accenture
+                </div>
+                <div class="terminal-line" style="animation-delay: 0.2s;">
+                    <span class="terminal-prompt">albert@devops:~$</span> cat skills.json
+                </div>
+                <div class="terminal-line" style="animation-delay: 0.3s;">
+                    {
+                </div>
+                <div class="terminal-line" style="animation-delay: 0.4s;">
+                      "cloud": ["AWS", "Azure", "GCP", "Terraform", "CloudFormation"],
+                </div>
+                <div class="terminal-line" style="animation-delay: 0.5s;">
+                      "devops": ["Docker", "Kubernetes", "CI/CD", "Jenkins", "GitLab"],
+                </div>
+                <div class="terminal-line" style="animation-delay: 0.6s;">
+                      "ai": ["OpenAI API", "Gemini", "LangChain", "RAG", "Vector DBs"],
+                </div>
+                <div class="terminal-line" style="animation-delay: 0.7s;">
+                      "languages": ["Python", "Node.js", "Bash", "SQL"]
+                </div>
+                <div class="terminal-line" style="animation-delay: 0.8s;">
+                    }
+                </div>
+                <div class="terminal-line" style="animation-delay: 0.9s;">
+                    <span class="terminal-prompt">albert@devops:~$</span> echo $CERTIFICATIONS
+                </div>
+                <div class="terminal-line" style="animation-delay: 1s;">
+                    MongoDB Solutions Architect | AWS Cloud Practitioner | Azure Fundamentals
+                </div>
+                <div class="terminal-line" style="animation-delay: 1.1s;">
+                    Azure AI Fundamentals | Google Cloud Digital Leader | Certified ScrumMaster
+                </div>
+                <div class="terminal-line" style="animation-delay: 1.2s;">
+                    <span class="terminal-prompt">albert@devops:~$</span> ls -la /contact/
+                </div>
+                <div class="terminal-line" style="animation-delay: 1.3s;">
+                    📧 albertgomezreverter@gmail.com
+                </div>
+                <div class="terminal-line" style="animation-delay: 1.4s;">
+                    💼 linkedin.com/in/albertgr
+                </div>
+                <div class="terminal-line" style="animation-delay: 1.5s;">
+                    🐙 github.com/AlbertGomezReverter
+                </div>
+                <div class="terminal-line" style="animation-delay: 1.6s;">
+                    <br>
+                </div>
+                <div class="terminal-line" style="animation-delay: 1.7s;">
+                    <span style="color: #ffff00;">Type 'help' for available commands</span>
+                </div>
+            </div>
+            <div class="terminal-input-line">
+                <span class="terminal-prompt">albert@devops:~$</span>
+                <input type="text" id="terminal-input" autofocus>
+                <span class="cursor-blink"></span>
+            </div>
+        </div>
     </div>
-  </nav>
 
-  <div class="container-fluid p-0">
-
-    <section class="resume-section p-3 p-lg-5 d-flex d-column" id="about">
-      <div class="my-auto">
-        <h1 class="mb-0">Albert
-          <span class="text-primary">Gómez Reverter</span>
-        </h1>
-        <div class="subheading mb-5">Pineda de Mar, Barcelona, Spain 08397 · (0034) 667596057 ·
-          <a href="mailto:albertgomezreverter@gmail.com">albertgomezreverter@gmail.com</a>
-        </div>
-        <p class="mb-5">Computer Engineer</p>
-        <ul class="list-inline list-social-icons mb-0">
-          <li class="list-inline-item">
-            <a href="https://twitter.com/albertgreverter">
-              <span class="fa-stack fa-lg">
-                <i class="fa fa-circle fa-stack-2x"></i>
-                <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
-              </span>
-            </a>
-          </li>
-          <li class="list-inline-item">
-            <a href="https://www.linkedin.com/in/albertgr/">
-              <span class="fa-stack fa-lg">
-                <i class="fa fa-circle fa-stack-2x"></i>
-                <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
-              </span>
-            </a>
-          </li>
-          <li class="list-inline-item">
-            <a href="https://github.com/AlbertGomezReverter">
-              <span class="fa-stack fa-lg">
-                <i class="fa fa-circle fa-stack-2x"></i>
-                <i class="fa fa-github fa-stack-1x fa-inverse"></i>
-              </span>
-            </a>
-          </li>
-        </ul>
-      </div>
-    </section>
-
-    <section class="resume-section p-3 p-lg-5 d-flex flex-column" id="experience">
-      <div class="my-auto">
-        <h2 class="mb-5">Experience</h2>
-
-        <div class="resume-item d-flex flex-column flex-md-row mb-5">
-          <div class="resume-content mr-auto">
-            <h3 class="mb-0">Tech Advisory and Strategy Annalyst</h3>
-            <div class="subheading mb-3">Accenture</div>
-            <p>During this years I worked on a different roles for an Insurance Client:</p>
+    <!-- NAVIGATION -->
+    <nav>
+        <div class="container">
+            <div class="logo">Albert Gómez Reverter</div>
             <ul>
-              <h5 class="mb-0">Service Management</h5>
-              Nowadays, I am a Service Management in a multicultural environment on a Digital Insurance Project
-              <ul>
-                <li>Coordinating the releases</li>
-                <li>Incident Management</li>
-                <li>Problem Management</li>
-                <li>Acces Management</li>
-                <li>Meet with different suppliers to improve their systems and report bugs.</li>
-              </ul>
+                <li><a href="#expertise">Expertise</a></li>
+                <li><a href="#experience">Experience</a></li>
+                <li><a href="#contact">Contact</a></li>
             </ul>
-            <ul>
-              <h5 class="mb-0">Quality Assurance</h5>
-              First 2 years I was working as a Quality Assurance on a Digital Insurance Project.
-              <ul>
-                <li>Test an Android and IOS app</li>
-                <li>Test an Angular web and deliver a PoC of an automated test</li>
-                <li>Check the definition of done were accurate</li>
-                <li>Help with the connection between the business team and technology team</li>
-                <li>Help with the Scrum Master tasks</li>
-              </ul>
-            </ul>
-            <ul>
-              <h5 class="mb-0">Chatbot Developer</h5>
-              At the same time I was QA, I was developing a Chatbot project for an Insurance Business during a year.
-              <ul>
-                <li>Develop a Chatbot uses a React Framework</li>
-                <li>Help with the client definition</li>
-                <li>Estimate the tasks and coordinate the technology team</li>
-                <li>Meet with the supplier to improve their systems and report bugs.</li>
-                <li>Help with the AI training</li>
-              </ul>
-            </ul>
-          </div>
-          <div class="resume-date text-md-right">
-            <span class="text-primary">January 2019 - Present</span>
-          </div>
         </div>
-        <div class="resume-item d-flex flex-column flex-md-row mb-5">
-          <div class="resume-content mr-auto">
-            <h3 class="mb-0">Software Developer</h3>
-            <div class="subheading mb-3">Ricoh</div>
-            <p>I was worked implementing a web using Angular and Spring</p>
-          </div>
-          <div class="resume-date text-md-right">
-            <span class="text-primary">October 2018 - January 2019</span>
-          </div>
-        </div>
-        <div class="resume-item d-flex flex-column flex-md-row mb-5">
-          <div class="resume-content mr-auto">
-            <h3 class="mb-0">App Developer</h3>
-            <div class="subheading mb-3">Cube Technology (STARTUP)</div>
-            <p>Developping an app using Angularjs, HTML5, CSS, SASS and Ionicv1 by Frontend and Couchdb, MySQL and
-              Drupal by Backend</p>
-          </div>
-          <div class="resume-date text-md-right">
-            <span class="text-primary">November 2017 - September 2018</span>
-          </div>
-        </div>
-      </div>
+    </nav>
 
+    <!-- HERO -->
+    <section class="hero">
+        <div>
+            <div class="name">Albert Gómez Reverter</div>
+            <h1>Technology Strategy<br>& Advisory</h1>
+            <p class="subtitle">Cloud, AI & Automation para seguros y banca</p>
+            <div class="cta">
+                <a href="#contact" class="btn">Get in touch</a>
+            </div>
+        </div>
     </section>
 
-    <section class="resume-section p-3 p-lg-5 d-flex flex-column" id="education">
-      <div class="my-auto">
-        <h2 class="mb-5">Education</h2>
-
-        <div class="resume-item d-flex flex-column flex-md-row mb-5">
-          <div class="resume-content mr-auto">
-            <h3 class="mb-0">Computer Engineering</h3>
-            <div class="subheading mb-3">Tecnocampus-Uiversity of Mataró (UPF)</div>
-          </div>
-          <div class="resume-date text-md-right">
-            <span class="text-primary">September 2014 - July 2018</span>
-          </div>
+    <!-- EXPERTISE -->
+    <section id="expertise">
+        <h2 class="fade-in">Expertise</h2>
+        <div class="expertise-grid">
+            <div class="expertise-item fade-in">
+                <h3>Cloud & FinOps</h3>
+                <p>AWS architecture, cost optimization, migration strategies, and financial operations for cloud infrastructure in regulated industries.</p>
+            </div>
+            <div class="expertise-item fade-in">
+                <h3>AI & Automation</h3>
+                <p>Conversational AI, LLM integration, intelligent automation, and AI strategy for insurance and banking digital transformation.</p>
+            </div>
+            <div class="expertise-item fade-in">
+                <h3>DevOps & Platform Engineering</h3>
+                <p>CI/CD pipelines, infrastructure as code, platform reliability, and modern development practices for enterprise applications.</p>
+            </div>
         </div>
+    </section>
 
+    <!-- EXPERIENCE -->
+    <section id="experience">
+        <h2 class="fade-in">Experience</h2>
+        <div class="timeline">
+            
+            <div class="timeline-item fade-in">
+                <div class="timeline-year">Sep 2021 - Presente</div>
+                <h3>Technology Strategy & Advisory Consultant</h3>
+                <div class="timeline-company">Accenture</div>
+                <ul>
+                    <li>Participated in technology transformation assessments for multi-country platforms, collaborating with CIOs to define strategic roadmaps</li>
+                    <li>Conducted FinOps evaluation projects for financial sector clients, analyzing cloud infrastructure and proposing cost optimization improvements</li>
+                    <li>Contributed to SDLC modernization project for banking, integrating AI agents in pipelines to evaluate automation, RAG implementation, and CI/CD optimization</li>
+                    <li>Managed as IT Project Manager the end-to-end delivery of 12 mid-size projects over 9 months, coordinating multidisciplinary teams and ensuring deadline compliance</li>
+                    <li>Acted as Operations Manager for production cloud platforms (8-19h, 7 days), managing incidents, releases, access, and vendors in regulated environments</li>
+                    <li>Led process automation initiatives, focusing on improving delivery efficiency and agility</li>
+                </ul>
+            </div>
 
-        <div class="resume-item d-flex flex-column flex-md-row">
-          <div class="resume-content mr-auto">
-            <h3 class="mb-0">Scrum Master</h3>
-            <div class="subheading mb-3">Scrum Alliance</div>
-          </div>
-          <div class="resume-date text-md-right">
-            <span class="text-primary">March 2019</span>
-          </div>
+            <div class="timeline-item fade-in">
+                <div class="timeline-year">Ene 2019 - Ago 2021</div>
+                <h3>Technology Advisory & Strategy Analyst</h3>
+                <div class="timeline-company">Accenture - Insurance Client</div>
+                <ul>
+                    <li><strong>Chatbot Development Team Leadership:</strong> Led development team for conversational AI chatbot, conducted analytics on new AI technologies, improved chatbot AI engine, and analyzed technical and business requirements</li>
+                    <li><strong>Service Management:</strong> Coordinated release launches, managed incidents and problems, handled platform access, met with vendors to improve systems and report bugs, reviewed and improved cloud infrastructure</li>
+                    <li><strong>Quality Assurance:</strong> Tested Android and iOS applications, tested Angular web applications and delivered automated testing PoC, verified definition of done, helped bridge business and technology teams, assisted with daily Scrum Master tasks</li>
+                </ul>
+            </div>
+
+            <div class="timeline-item fade-in">
+                <div class="timeline-year">Oct 2018 - Ene 2019</div>
+                <h3>Software Developer</h3>
+                <div class="timeline-company">Ricoh España</div>
+                <ul>
+                    <li>Prepared training course on Angular 4 for development team</li>
+                    <li>Wrote reports related to integration of proprietary applications with company machines and third-party applications</li>
+                    <li>Developed login service with third-party API integration</li>
+                </ul>
+            </div>
+
+            <div class="timeline-item fade-in">
+                <div class="timeline-year">Nov 2017 - Sep 2018</div>
+                <h3>IT Software Developer</h3>
+                <div class="timeline-company">myHEALTH WATCHER - Startup</div>
+                <ul>
+                    <li>Developed mobile application (myHealth Watcher) from concept to launch</li>
+                    <li>Frontend development using HTML5, CSS, Angular, and Ionic v1</li>
+                    <li>Backend development using Drupal, MySQL, and Sailsjs</li>
+                    <li>Full-stack responsibility in early-stage startup environment</li>
+                </ul>
+            </div>
+
         </div>
-
-      </div>
     </section>
 
-    <section class="resume-section p-3 p-lg-5 d-flex flex-column" id="skills">
-      <div class="my-auto">
-        <h2 class="mb-5">Skills</h2>
-
-        <div class="subheading mb-3">Programming Languages &amp; Tools</div>
-        <ul class="list-inline list-icons">
-          <li class="list-inline-item">
-            <i class="devicons devicons-java"></i>
-          </li>
-          <li class="list-inline-item">
-            <i class="devicons devicons-database"></i>
-          </li>
-          <li class="list-inline-item">
-            <i class="devicons devicons-git"></i>
-          </li>
-          <li class="list-inline-item">
-            <i class="devicons devicons-angular"></i>
-          </li>
-          <li class="list-inline-item">
-            <i class="devicons devicons-javascript"></i>
-          </li>
-          <li class="list-inline-item">
-            <i class="devicons devicons-html5"></i>
-          </li>
-          <li class="list-inline-item">
-            <i class="devicons devicons-sass"></i>
-          </li>
-          <li class="list-inline-item">
-            <i class="devicons devicons-react"></i>
-          </li>
-          <li class="list-inline-item">
-            <i class="devicons devicons-bitbucket"></i>
-          </li>
-          <li class="list-inline-item">
-            <i class="devicons devicons-python"></i>
-          </li>
-          <li class="list-inline-item">
-            <i class="devicons devicons-scrum"></i>
-          </li>
-          <li class="list-inline-item">
-            <i class="devicons devicons-trello"></i>
-          </li>
-          <li class="list-inline-item">
-            <i class="devicons devicons-npm"></i>
-          </li>
-          <li class="list-inline-item">
-            <i class="devicons devicons-terminal"></i>
-          </li>
-        </ul>
-
-        <div class="subheading mb-3">Workflow</div>
-        <ul class="fa-ul mb-0">
-          <li>
-            <i class="fa-li fa fa-check"></i>
-            Agile Development &amp; Scrum
-          </li>
-          <li>
-            <i class="fa-li fa fa-check"></i>
-            Cloud
-          </li>
-          <li>
-            <i class="fa-li fa fa-check"></i>
-            Service Management
-          </li>
-          <li>
-            <i class="fa-li fa fa-check"></i>
-            TDD &amp; DDD
-          </li>
-          <li>
-            <i class="fa-li fa fa-check"></i>
-            Cross Functional Teams
-          </li>
-
-        </ul>
-      </div>
+    <!-- CERTIFICATIONS -->
+    <section>
+        <h2 class="fade-in">Certifications</h2>
+        <div class="cert-grid">
+            <div class="cert-item fade-in">
+                <img src="https://cdn.worldvectorlogo.com/logos/mongodb-icon-2.svg" alt="MongoDB">
+                <h4>MongoDB</h4>
+                <p>Solutions Architect</p>
+            </div>
+            <div class="cert-item fade-in">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" alt="AWS">
+                <h4>AWS</h4>
+                <p>Cloud Practitioner</p>
+            </div>
+            <div class="cert-item fade-in">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a8/Microsoft_Azure_Logo.svg" alt="Azure">
+                <h4>Azure</h4>
+                <p>Fundamentals</p>
+            </div>
+            <div class="cert-item fade-in">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a8/Microsoft_Azure_Logo.svg" alt="Azure AI">
+                <h4>Azure AI</h4>
+                <p>Fundamentals</p>
+            </div>
+            <div class="cert-item fade-in">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Google_Cloud_logo.svg" alt="Google Cloud">
+                <h4>Google Cloud</h4>
+                <p>Digital Leader</p>
+            </div>
+            <div class="cert-item fade-in">
+                <div class="cert-icon">👥</div>
+                <h4>Scrum Alliance</h4>
+                <p>Certified ScrumMaster</p>
+            </div>
+        </div>
     </section>
 
-    <section class="resume-section p-3 p-lg-5 d-flex flex-column" id="interests">
-      <div class="my-auto">
-        <h2 class="mb-5">Interests</h2>
-        <p>Apart from being a tech-person, I enjoy most of my time playing and seeing basketball, for this reason, I
-          studied to be a couch and learn about all basketball magic and of the team.</p>
-        <p>Nowadays I am a President of <a href="https://www.basquetsantpol07.com/" target="_blank">Club Bàsquet Sant
-            Pol 07</a>, with that opportunity I can learn about management of teams and an economical part of that.</p>
-        <p>I also love watching movies and series, no matter the style while maintaining a touch of humor
-          and mystery, and I spend a large amount of my free time exploring the latest technolgy advancements.</p>
-        <p>To finish, and no for that less important, I love to stay with my family and my friends a lot of
-          time, and overall, stay with my dog, he looks so pretty</p>
-      </div>
+    <!-- CONTACT -->
+    <section class="contact" id="contact">
+        <h2>Let's work together</h2>
+        <p style="font-size: 21px; color: #6e6e73; margin-top: 20px;">Available for consulting, advisory, and strategic technology initiatives</p>
+        <div class="contact-links">
+            <a href="mailto:albertgomezreverter@gmail.com">Email</a>
+            <a href="https://www.linkedin.com/in/albertgr" target="_blank">LinkedIn</a>
+            <a href="https://github.com/AlbertGomezReverter" target="_blank">GitHub</a>
+        </div>
     </section>
 
-    <!-- <section class="resume-section p-3 p-lg-5 d-flex flex-column" id="awards">
-      <div class="my-auto">
-        <h2 class="mb-5">Awards &amp; Certifications</h2>
-        <ul class="fa-ul mb-0">
-          <li>
-            <i class="fa-li fa fa-trophy text-warning"></i>
-            Google Analytics Certified Developer</li>
-          <li>
-            <i class="fa-li fa fa-trophy text-warning"></i>
-            Mobile Web Specialist - Google Certification</li>
-          <li>
-            <i class="fa-li fa fa-trophy text-warning"></i>
-            1
-            <sup>st</sup>
-            Place - University of Colorado Boulder - Emerging Tech Competition 2009</li>
-          <li>
-            <i class="fa-li fa fa-trophy text-warning"></i>
-            1
-            <sup>st</sup>
-            Place - University of Colorado Boulder - Adobe Creative Jam 2008 (UI Design Category)</li>
-          <li>
-            <i class="fa-li fa fa-trophy text-warning"></i>
-            2
-            <sup>nd</sup>
-            Place - University of Colorado Boulder - Emerging Tech Competition 2008</li>
-          <li>
-            <li>
-              <i class="fa-li fa fa-trophy text-warning"></i>
-              1
-              <sup>st</sup>
-              Place - James Buchanan High School - Hackathon 2006</li>
-            <li>
-              <i class="fa-li fa fa-trophy text-warning"></i>
-              3
-              <sup>rd</sup>
-              Place - James Buchanan High School - Hackathon 2005</li>
-        </ul>
-      </div>
-    </section> -->
+    <!-- JAVASCRIPT -->
+    <script>
+        // ============ CUSTOM CURSOR ============
+        const cursor = document.getElementById('cursor');
+        const cursorTrail = document.getElementById('cursor-trail');
+        let mouseX = 0, mouseY = 0;
+        let cursorX = 0, cursorY = 0;
+        let trailX = 0, trailY = 0;
 
-  </div>
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
 
-  <!-- Bootstrap core JavaScript -->
-  <script src="vendor/jquery/jquery.min.js"></script>
-  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+        function animateCursor() {
+            cursorX += (mouseX - cursorX) * 0.2;
+            cursorY += (mouseY - cursorY) * 0.2;
+            cursor.style.left = cursorX + 'px';
+            cursor.style.top = cursorY + 'px';
 
-  <!-- Plugin JavaScript -->
-  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+            trailX += (mouseX - trailX) * 0.1;
+            trailY += (mouseY - trailY) * 0.1;
+            cursorTrail.style.left = trailX + 'px';
+            cursorTrail.style.top = trailY + 'px';
 
-  <!-- Custom scripts for this template -->
-  <script src="js/resume.min.js"></script>
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        // Particle effect
+        document.addEventListener('click', (e) => {
+            for (let i = 0; i < 8; i++) {
+                createParticle(e.clientX, e.clientY);
+            }
+        });
+
+        function createParticle(x, y) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = x + 'px';
+            particle.style.top = y + 'px';
+            
+            const angle = (Math.PI * 2 * Math.random());
+            const velocity = 20 + Math.random() * 30;
+            const tx = Math.cos(angle) * velocity;
+            const ty = Math.sin(angle) * velocity;
+            
+            particle.style.setProperty('--tx', tx + 'px');
+            particle.style.setProperty('--ty', ty + 'px');
+            
+            document.body.appendChild(particle);
+            setTimeout(() => particle.remove(), 1000);
+        }
+
+        // ============ TERMINAL MODE ============
+        const terminalOverlay = document.getElementById('terminal-overlay');
+        const terminalInput = document.getElementById('terminal-input');
+        const terminalOutput = document.getElementById('terminal-output');
+
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.shiftKey && e.key === 'T') {
+                e.preventDefault();
+                openTerminal();
+            }
+            if (e.key === 'Escape' && terminalOverlay.classList.contains('active')) {
+                closeTerminal();
+            }
+        });
+
+        function openTerminal() {
+            terminalOverlay.classList.add('active');
+            terminalInput.focus();
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTerminal() {
+            terminalOverlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Terminal commands
+        const commands = {
+            help: `Available commands:
+  - skills: Show technical skills
+  - projects: Display key projects
+  - contact: Show contact information
+  - certifications: List certifications
+  - clear: Clear terminal
+  - exit: Close terminal`,
+            
+            skills: `Technical Stack:
+  Cloud: AWS, Azure, GCP, Terraform, CloudFormation
+  DevOps: Docker, Kubernetes, CI/CD, Jenkins, GitLab
+  AI/ML: OpenAI API, Gemini, LangChain, Vector DBs
+  Languages: Python, Node.js, Bash, SQL
+  Monitoring: Prometheus, Grafana, CloudWatch`,
+            
+            projects: `Key Projects:
+  🤖 Conversational AI Chatbot (Insurance) - Team Lead
+     Led chatbot development team, improved AI engine, managed requirements
+  
+  ☁️  FinOps Assessment (Financial Sector) - Strategy Consultant
+     Analyzed cloud infrastructure and proposed cost optimization
+  
+  🏦 SDLC Modernization (Banking) - Contributor
+     Integrated AI agents in pipelines for automation and RAG
+  
+  📊 IT Project Portfolio (Accenture) - Project Manager
+     Delivered 12 mid-size projects in 9 months
+  
+  🚀 Cloud Operations (Production) - Operations Manager
+     Managed critical banking platforms 24/7 in regulated environment`,
+            
+            contact: `Contact Information:
+  📧 Email: albertgomezreverter@gmail.com
+  💼 LinkedIn: linkedin.com/in/albertgr
+  🐙 GitHub: github.com/AlbertGomezReverter
+  📍 Location: Pineda de Mar, Catalunya, ES`,
+            
+            certifications: `Cloud Certifications:
+  ✅ MongoDB Solutions Architect
+  ✅ AWS Cloud Practitioner
+  ✅ Microsoft Azure Fundamentals (AZ-900)
+  ✅ Microsoft Azure AI Fundamentals (AI-900)
+  ✅ Google Cloud Digital Leader
+  ✅ Scrum Alliance Certified ScrumMaster (CSM)
+  ✅ AI Fluency Framework & Foundations`,
+            
+            clear: 'CLEAR_TERMINAL'
+        };
+
+        terminalInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const command = terminalInput.value.trim().toLowerCase();
+                terminalInput.value = '';
+                
+                if (command === 'exit') {
+                    closeTerminal();
+                    return;
+                }
+                
+                const response = commands[command] || `Command not found: ${command}. Type 'help' for available commands.`;
+                
+                if (response === 'CLEAR_TERMINAL') {
+                    terminalOutput.innerHTML = '';
+                } else {
+                    addTerminalLine(`<span class="terminal-prompt">albert@devops:~$</span> <span class="terminal-command">${command}</span>`);
+                    addTerminalLine(response);
+                }
+            }
+        });
+
+        function addTerminalLine(text) {
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+            line.innerHTML = text;
+            line.style.animation = 'none';
+            line.style.opacity = '1';
+            terminalOutput.appendChild(line);
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+
+        // ============ SCROLL ANIMATIONS ============
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
 
 </body>
-
 </html>
